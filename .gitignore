@@ -1,9 +1,4 @@
-__pycache__/
-*.py[cod]
-*.class
 .env
-.venv
-env/
-venv/
-ENV/
-logs/*.jsonl
+__pycache__/
+*.pyc
+logs/

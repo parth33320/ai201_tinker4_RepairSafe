@@ -1,25 +1,42 @@
-import json
 import os
+import json
 from datetime import datetime
+import config
 
-LOG_FILE = "logs/audit.jsonl"
+def log_interaction(tier: str, question: str, response: str, model_used: str = config.GROQ_MODEL, response_time_ms: int = 0):
+    """
+    Logs the interaction to a JSONL file and prints a terminal summary.
 
-def log_interaction(tier: str, question: str, response: str):
+    Args:
+        tier (str): The safety tier ('safe', 'caution', 'refuse').
+        question (str): The user's input question.
+        response (str): The generated response.
+        model_used (str): The LLM model name.
+        response_time_ms (int): The time taken to generate the response in milliseconds.
     """
-    Logs the interaction to an append-only JSONL file.
-    Stub implementation.
-    """
-    if not os.path.exists("logs"):
-        os.makedirs("logs")
+    # Ensure logs directory exists
+    log_dir = os.path.dirname(config.LOG_FILE)
+    if log_dir:
+        os.makedirs(log_dir, exist_ok=True)
+
+    timestamp = datetime.utcnow().isoformat() + "Z"
+
+    # Truncate strings for logging
+    truncated_question = question[:config.TRUNCATE_QUESTION]
+    truncated_response = response[:config.TRUNCATE_RESPONSE]
 
     log_entry = {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": timestamp,
         "tier": tier,
-        "question": question[:300],
-        "response_preview": response[:200]
+        "question": truncated_question,
+        "response_preview": truncated_response,
+        "model_used": model_used,
+        "response_time_ms": response_time_ms
     }
 
-    with open(LOG_FILE, "a") as f:
+    # Write to JSONL file
+    with open(config.LOG_FILE, "a") as f:
         f.write(json.dumps(log_entry) + "\n")
 
-    print(f"Logged: {tier} - {question[:50]}...")
+    # Print terminal summary
+    print(f"[{timestamp}] TIER: {tier} | Q: {truncated_question} | R: {truncated_response}")
