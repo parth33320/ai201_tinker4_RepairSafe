@@ -11,3 +11,5 @@ TRUNCATE_QUESTION = 300
 TRUNCATE_RESPONSE = 200
 
 LOG_FILE = "logs/audit.jsonl"
+VALID_TIERS = ["safe", "caution", "refuse"]
+DEFAULT_FALLBACK_TIER = "refuse"

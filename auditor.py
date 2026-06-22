@@ -16,12 +16,13 @@ def log_interaction(tier: str, question: str, response: str, model_used: str = c
     """
     # Ensure logs directory exists
     log_dir = os.path.dirname(config.LOG_FILE)
-    if log_dir:
+    if log_dir and not os.path.exists(log_dir):
         os.makedirs(log_dir, exist_ok=True)
 
-    timestamp = datetime.utcnow().isoformat() + "Z"
+    # Use ISO 8601 format: YYYY-MM-DDTHH:MM:SS
+    timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
-    # Truncate strings for logging
+    # Hard truncation without ellipsis
     truncated_question = question[:config.TRUNCATE_QUESTION]
     truncated_response = response[:config.TRUNCATE_RESPONSE]
 
