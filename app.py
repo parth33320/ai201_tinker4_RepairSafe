@@ -9,26 +9,33 @@ app = Flask(__name__)
 
 @app.route('/ask', methods=['POST'])
 def ask():
+    """
+    Orchestrates the three-tier safety pipeline:
+    1. Classify the question.
+    2. Generate a response based on the tier.
+    3. Log the interaction.
+    4. Return the response.
+    """
     data = request.json
     if not data or 'question' not in data:
-        return jsonify({"error": "Missing 'question' in request body"}), 400
+        return jsonify({"message": "Missing 'question' in request body"}), 400
 
     question = data['question']
 
     # Start timer for the entire pipeline (classification + generation)
     start_time = time.time()
 
-    # 1. Classify safety tier
+    # Step 1: Classify safety tier
     tier = classify_safety_tier(question)
 
-    # 2. Generate safe response
+    # Step 2: Generate safe response
     response = generate_safe_response(question, tier)
 
     # Stop timer
     end_time = time.time()
     response_time_ms = int((end_time - start_time) * 1000)
 
-    # 3. Log interaction
+    # Step 3: Log interaction
     log_interaction(
         tier=tier,
         question=question,
@@ -37,6 +44,7 @@ def ask():
         response_time_ms=response_time_ms
     )
 
+    # Step 4: Return JSON response
     return jsonify({
         "tier": tier,
         "response": response
