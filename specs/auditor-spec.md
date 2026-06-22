@@ -10,7 +10,7 @@ The audit log uses the JSONL (JSON Lines) format, where each line is a single, i
 | `tier` | String | The safety tier assigned by the classifier (`safe`, `caution`, `refuse`). |
 | `question` | String | The user's input question, truncated to 300 characters. |
 | `response_preview` | String | A preview of the generated response, truncated to 200 characters. |
-| `model_used` | String | The name of the LLM model used (e.g., `llama3-70b-8192`). |
+| `model_used` | String | The name of the LLM model used (e.g., `llama-3.3-70b-versatile`). |
 | `response_time_ms` | Integer | The time taken to generate the response in milliseconds. |
 
 ## Truncation Reasoning

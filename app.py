@@ -15,7 +15,7 @@ def ask():
 
     question = data['question']
 
-    # Start timer for the entire pipeline
+    # Start timer for the entire pipeline (classification + generation)
     start_time = time.time()
 
     # 1. Classify safety tier
