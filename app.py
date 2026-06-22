@@ -15,18 +15,27 @@ def ask():
 
     question = data['question']
 
+    # Start timer for the entire pipeline
+    start_time = time.time()
+
     # 1. Classify safety tier
     tier = classify_safety_tier(question)
 
     # 2. Generate safe response
-    start_time = time.time()
     response = generate_safe_response(question, tier)
-    end_time = time.time()
 
+    # Stop timer
+    end_time = time.time()
     response_time_ms = int((end_time - start_time) * 1000)
 
     # 3. Log interaction
-    log_interaction(tier, question, response, model_used=config.GROQ_MODEL, response_time_ms=response_time_ms)
+    log_interaction(
+        tier=tier,
+        question=question,
+        response=response,
+        model_used=config.GROQ_MODEL,
+        response_time_ms=response_time_ms
+    )
 
     return jsonify({
         "tier": tier,
