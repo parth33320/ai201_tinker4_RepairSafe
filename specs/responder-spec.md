@@ -1,7 +1,7 @@
 # Responder Specification
 
 ## Overview
-The Responder is responsible for generating safe and appropriate repair guidance based on a pre-determined safety tier. It uses the Groq API with the `llama3-70b-8192` model.
+The Responder is responsible for generating safe and appropriate repair guidance based on a pre-determined safety tier. It uses the Groq API with the `llama-3.3-70b-versatile` model.
 
 ## System Prompts
 
