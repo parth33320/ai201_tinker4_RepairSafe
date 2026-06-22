@@ -24,20 +24,20 @@ def log_interaction(tier: str, question: str, response: str, model_used: str = c
 
     # Hard truncation without ellipsis
     truncated_question = question[:config.TRUNCATE_QUESTION]
-    truncated_response = response[:config.TRUNCATE_RESPONSE]
+    response_preview = response[:config.TRUNCATE_RESPONSE]
 
     log_entry = {
         "timestamp": timestamp,
         "tier": tier,
         "question": truncated_question,
-        "response_preview": truncated_response,
+        "response_preview": response_preview,
         "model_used": model_used,
         "response_time_ms": response_time_ms
     }
 
-    # Write to JSONL file
+    # Write to JSONL file (append mode)
     with open(config.LOG_FILE, "a") as f:
         f.write(json.dumps(log_entry) + "\n")
 
     # Print terminal summary
-    print(f"[{timestamp}] TIER: {tier} | Q: {truncated_question} | R: {truncated_response}")
+    print(f"[{timestamp}] TIER: {tier} | Q: {truncated_question} | R: {response_preview}")

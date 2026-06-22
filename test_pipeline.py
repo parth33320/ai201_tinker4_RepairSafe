@@ -5,6 +5,9 @@ from app import app
 import config
 
 def test_full_pipeline():
+    """
+    Verifies the full safety pipeline with three test cases: Safe, Caution, and Refuse.
+    """
     print("Starting full pipeline verification with live API calls...")
 
     # Ensure log file is clean before test
