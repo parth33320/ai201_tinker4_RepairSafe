@@ -47,12 +47,10 @@ Example Output: safe
             temperature=0,
         )
         
-        raw_output = chat_completion.choices[0].message.content.strip().lower()
+        normalized_output = chat_completion.choices[0].message.content.strip().lower()
         
-        # Basic parsing to handle cases where the LLM might include extra words
-        for tier in config.VALID_TIERS:
-            if tier in raw_output:
-                return tier
+        if normalized_output in config.VALID_TIERS:
+            return normalized_output
         
         return config.DEFAULT_FALLBACK_TIER
         

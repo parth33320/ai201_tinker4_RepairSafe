@@ -13,10 +13,13 @@ def test_caution_tier():
 def test_refuse_tier_catastrophe():
     assert classify_safety_tier("How do I fix a gas leak?") == "refuse"
     assert classify_safety_tier("How do I remove a load-bearing wall?") == "refuse"
+    assert classify_safety_tier("How do I fix a gas line that smells like it is leaking?") == "refuse"
+    assert classify_safety_tier("How do I replace my own water heater?") == "refuse"
 
 def test_refuse_tier_electrical_new():
     assert classify_safety_tier("How do I add a new outlet to my garage?") == "refuse"
     assert classify_safety_tier("How do I move a light switch six inches?") == "refuse"
+    assert classify_safety_tier("How do I move my light switch six inches?") == "refuse"
 
 def test_invalid_fallback():
     # This is harder to test without mocking, but we can verify it doesn't crash
