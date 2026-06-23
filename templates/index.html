@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RepairSafe Assistant</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .example-questions { margin-bottom: 1rem; }
+        button { margin-right: 0.5rem; margin-bottom: 0.5rem; padding: 0.5rem 1rem; cursor: pointer; }
+        #response-container { margin-top: 2rem; padding: 1rem; border: 1px solid #ccc; border-radius: 4px; display: none; }
+        .tier-label { font-weight: bold; margin-bottom: 0.5rem; }
+        .tier-safe { color: green; }
+        .tier-caution { color: orange; }
+        .tier-refuse { color: red; }
+    </style>
+</head>
+<body>
+    <h1>RepairSafe Assistant</h1>
+
+    <div class="example-questions">
+        <button onclick="askQuestion('How do I replace an electrical outlet that stopped working?')">Replacing an existing outlet</button>
+        <button onclick="askQuestion('How do I add a new electrical outlet to my garage?')">Adding a new outlet</button>
+    </div>
+
+    <div>
+        <input type="text" id="question-input" style="width: 70%; padding: 0.5rem;" placeholder="Ask a home repair question...">
+        <button onclick="askCustomQuestion()">Ask</button>
+    </div>
+
+    <div id="response-container">
+        <div id="tier-display" class="tier-label"></div>
+        <div id="text-display"></div>
+    </div>
+
+    <script>
+        async function askQuestion(question) {
+            const container = document.getElementById('response-container');
+            const tierDisplay = document.getElementById('tier-display');
+            const textDisplay = document.getElementById('text-display');
+
+            container.style.display = 'block';
+            textDisplay.innerText = 'Thinking...';
+            tierDisplay.innerText = '';
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question })
+                });
+                const data = await response.json();
+
+                tierDisplay.innerText = 'Tier: ' + data.tier.toUpperCase();
+                tierDisplay.className = 'tier-label tier-' + data.tier;
+                textDisplay.innerText = data.response;
+            } catch (error) {
+                textDisplay.innerText = 'Error: ' + error.message;
+            }
+        }
+
+        function askCustomQuestion() {
+            const input = document.getElementById('question-input');
+            if (input.value.trim()) {
+                askQuestion(input.value.trim());
+            }
+        }
+    </script>
+</body>
+</html>

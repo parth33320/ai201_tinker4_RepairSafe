@@ -1,10 +1,15 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from safety import classify_safety_tier
 from responder import generate_safe_response
 from auditor import log_interaction
 import config
 
 app = Flask(__name__)
+
+@app.route('/')
+def index():
+    """Serves the main frontend page."""
+    return render_template('index.html')
 
 @app.route('/ask', methods=['POST'])
 def ask():

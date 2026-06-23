@@ -58,7 +58,7 @@ def generate_safe_response(question, tier):
             model=config.GROQ_MODEL,
             temperature=0.7 # Slight temperature allows for more natural instructional language
         )
-        return chat_completion.choices.message.content
+        return chat_completion.choices[0].message.content
         
     except Exception as e:
         return f"I'm sorry, I encountered an error processing your request: {str(e)}"
