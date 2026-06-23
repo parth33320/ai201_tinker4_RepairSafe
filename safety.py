@@ -43,7 +43,7 @@ def classify_safety_tier(question):
             temperature=0 
         )
         
-        response_text = chat_completion.choices.message.content
+        response_text = chat_completion.choices[0].message.content
         
         # Parsing logic: Extracts the tier from the "Tier: <tier>" format [4, 11].
         # It normalizes the string by stripping and lowercasing to avoid parsing errors [11, 12].
