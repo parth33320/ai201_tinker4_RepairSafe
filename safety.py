@@ -5,50 +5,60 @@ import config
 
 load_dotenv()
 
+# The Groq client is initialized using your API key from the .env file [5].
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def classify_safety_tier(question):
     """
-    You are a safety classifier for a home repair assistant. Your task is to categorize user questions into one of three tiers: safe, caution, refuse.
-
-    ### TIER DEFINITIONS:
-    - **safe**: Routine DIY repairs. Low risk, easy to fix if a mistake is made. (e.g., painting, patching small holes, replacing cabinet hardware).
-    - **caution**: Moderate risk repairs. Doable for a motivated DIYer, but mistakes have a cost (e.g., leaky pipes, replacing existing fixtures).
-    - **refuse**: High-risk repairs. Mistakes can lead to catastrophic failure. REQUIRES A PROFESSIONAL.
-
-    ### MANDATORY DECISION RULES:
-    1. **The "Catastrophe" Rule**: If an amateur mistake could cause FIRE, FLOODING, STRUCTURAL FAILURE, INJURY, or DEATH, you MUST return "refuse".
-    2. **The Electrical Rule**:
-        - "Replacing existing" components (like an outlet, switch, or light fixture) is **caution**.
-        - "Adding new" infrastructure (like running new wire, adding a new outlet, or opening the electrical panel) is **refuse**.
-    3. **Framing doesn't change the tier**: If a user asks to "just move a switch six inches", that requires new wiring and is **refuse**, regardless of how simple the user makes it sound.
-
-    ### OUTPUT FORMAT:
-    Return only the tier name in lowercase. No explanation.
-    Example Output: safe
+    You are a safety classifier for a home repair assistant. 
+    Your task is to categorize user questions into one of three tiers: safe, caution, refuse. [5]
     """
-    try:
-        # Use the prompt defined in the docstring as the system message
-        system_prompt = classify_safety_tier.__doc__
+    
+    # System prompt built using precise definitions from the classifier spec [3, 4].
+    # It incorporates the critical fire/flood/death rule and the electrical "replace vs. add" distinction [6, 7].
+    system_prompt = f"""
+    You are a safety classifier for home repair questions. Categorize the user's question into exactly one of these tiers:
+    
+    - safe: Routine DIY tasks with minimal risk and high recoverability (e.g., painting, basic patching).
+    - caution: Doable but risky tasks where errors cause manageable damage (e.g., component swaps like replacing an existing outlet).
+    - refuse: High-stakes tasks where mistakes lead to fire, flooding, structural failure, injury, or death (e.g., new electrical/plumbing infrastructure).
+    
+    DECISION RULE: If an amateur mistake could cause fire, flooding, structural failure, injury, or death, you MUST classify as 'refuse'. [4, 6]
+    ELECTRICAL RULE: 'Replacing existing' components at an existing location is 'caution'. 'Adding new' electrical infrastructure (new wire, new circuits, opening the panel) is 'refuse'. [7, 8]
+    
+    Return your response in this exact format:
+    Tier: <tier>
+    Reason: <brief explanation>
+    """
 
-        response = client.chat.completions.create(
+    try:
+        # Use the Groq model specified in config.py [9].
+        # Temperature is set to 0 to ensure consistent, deterministic classifications [10].
+        chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": question}
             ],
             model=config.GROQ_MODEL,
-            temperature=0, # Temperature 0 is best for structured classification
+            temperature=0 
         )
         
-        # Normalization and strict equality check
-        raw_output = response.choices[0].message.content
-        # Normalization handles common LLM formatting variations like capitalized letters,
-        # surrounding quotes, or trailing punctuation.
-        normalized_tier = raw_output.strip(' \t\n\r.?!,"\'').lower()
+        response_text = chat_completion.choices.message.content
         
-        if normalized_tier in config.VALID_TIERS:
-            return normalized_tier
-        return config.DEFAULT_FALLBACK_TIER
+        # Parsing logic: Extracts the tier from the "Tier: <tier>" format [4, 11].
+        # It normalizes the string by stripping and lowercasing to avoid parsing errors [11, 12].
+        tier = "unknown"
+        for line in response_text.split('\n'):
+            if line.strip().startswith("Tier:"):
+                tier = line.replace("Tier:", "").strip().lower()
+                break
+        
+        # Validation: Ensures the extracted tier is one of the allowed values [9, 12].
+        if tier in config.VALID_TIERS:
+            return tier
+            
     except Exception:
-        # Safety fallback for API errors or unexpected model behavior
-        return config.DEFAULT_FALLBACK_TIER
+        # If an error occurs or parsing fails, the system defaults to the safest fallback [4, 11, 13].
+        pass
+
+    return config.DEFAULT_FALLBACK_TIER
