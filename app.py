@@ -15,12 +15,10 @@ def ask():
     
     try:
         tier = classify_safety_tier(question)
-        return jsonify({
-            "question": question,
-            "tier": tier
-        })
     except Exception as e:
-        return jsonify({"message": str(e)}), 500
+        tier = config.DEFAULT_FALLBACK_TIER
+
+    return jsonify({"tier": tier})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
